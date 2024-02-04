@@ -11,28 +11,31 @@ import MapKit
 struct LocationsView: View {
     
     @EnvironmentObject private var  vm: LocationsViewModel
+    @Binding var themeColor: String
     
     var body: some View {
-        ZStack(alignment: .bottom){
-            
-            mapLayer.ignoresSafeArea()
-            
-            VStack{
+        NavigationStack{
+            ZStack(alignment: .bottom){
                 
-                ZStack{
-                    header.padding()
+                mapLayer.ignoresSafeArea()
+                
+                VStack{
+                    
+                    ZStack{
+                        header.padding()
+                    }
+                    
+                    Spacer()
+                    
+                    //locationpreviewStack
+                    
+                    // floatingSearchButton
+                    
+                    
                 }
-                
-                Spacer()
-                
-                //locationpreviewStack
-                
-               // floatingSearchButton
-            
-
-            }
-            .sheet(item: $vm.sheetLocation, onDismiss: nil){  location in
-                LocationDetailView(location: location)
+                .sheet(item: $vm.sheetLocation, onDismiss: nil){  location in
+                    LocationDetailView(location: location)
+                }
             }
         }
     }
@@ -41,7 +44,7 @@ struct LocationsView: View {
         Map(coordinateRegion: $vm.mapRegion, annotationItems: vm.locations, annotationContent: { location in
             // MapMarker(coordinate: location.coordinates)
             MapAnnotation(coordinate: location.coordinates) {
-               MapAnnotationLocationView().scaleEffect(vm.mapLocation == location ? 1 : 0.7)
+               MapAnnotationLocationView(accentColor:  themeColor).scaleEffect(vm.mapLocation == location ? 1 : 0.7)
                         .shadow(radius: 10)
                         .onTapGesture {
                             vm.sheetLocation = location
@@ -56,7 +59,8 @@ struct LocationsView: View {
             {
                 Rectangle()
                     .fill(Color("buttonColor"))
-                    .frame(width: 45, height: 45)        .cornerRadius(3.0)
+                    .frame(width: 45, height: 45)   
+                    .cornerRadius(3.0)
                 
                 
                 Image("orangeFrog")
@@ -65,7 +69,8 @@ struct LocationsView: View {
                     . font (. headline)
                     .border(.accent, width: 3)
                     .background(.white)
-                    . frame (width: 40,height: 40)        .cornerRadius(3.0)
+                    .frame (width: 40,height: 40)
+                    .cornerRadius(3.0)
             }
     }
     
@@ -104,17 +109,25 @@ struct LocationsView: View {
     }
 }
 
-#Preview {
-    LocationsView().environmentObject(LocationsViewModel())
-}
+//#Preview {
+//    LocationsView(themeColor: "AccentColor").environmentObject(LocationsViewModel())
+//}
 
 extension LocationsView{
     
     private var header: some View{
             VStack(spacing: 0 ){
                 HStack{
-                    changeThemeFrog
-
+                    
+                    Button(action:{
+                        if(themeColor == "buttonColor"){
+                            themeColor = "AccentColor"
+                        }else{
+                            themeColor = "buttonColor"
+                        }
+                    },label: {
+                        changeThemeFrog
+                    })
                     Button(action: vm.toggleLocationList, label: {
                         HStack{
                             Text(vm.mapLocation.name + " , " + vm.mapLocation.cityName).font(.title3).fontWeight(.black)
@@ -130,7 +143,7 @@ extension LocationsView{
                         }.background(.thinMaterial)
                             .cornerRadius(10)
                             .shadow(color: Color.black.opacity(0.3), radius: 20, x: 0, y: 15)
-                    })
+                    }).padding()
                 }
                 if(vm.showMapList){
                     LocationListView()
